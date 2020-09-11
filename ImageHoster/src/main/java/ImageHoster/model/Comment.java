@@ -1,17 +1,17 @@
 package ImageHoster.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 
 //@Entity annotation specifies that the corresponding class is a JPA entity
 @Entity
 //@Table annotation provides more options to customize the mapping.
-//Here the name of the table to be created in the database is explicitly mentioned as 'images'. Hence the table named 'images' will be created in the database with all the columns mapped to all the attributes in 'Image' class
+//Here the name of the table to be created in the database is explicitly mentioned as 'comments'. Hence the table named 'comments' will be created in the database with all the columns mapped to all the attributes in 'comments' class
 @Table(name = "comments")
-public class Comments {
+public class Comment {
 
     //@Id annotation specifies that the corresponding attribute is a primary key
     @Id
@@ -35,7 +35,7 @@ public class Comments {
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
     //Below annotation indicates that the name of the column in 'comment' table referring the primary key in 'users' table will be 'user'
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id")
     private User user;
 
     //The 'comment' table is mapped to 'images' table with Many:One mapping
@@ -43,24 +43,24 @@ public class Comments {
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
     //Below annotation indicates that the name of the column in 'comment' table referring the primary key in 'images' table will be 'Image'
-    @JoinColumn(name = "Image")
+    @JoinColumn(name = "Image_id")
     private Image Image;
 
-    public Comments() {
+    public Comment() {
     }
 
-    public Comments(String description)
+    public Comment(String description)
     {
         this.text =  description;
     }
 
-    public Comments(int id, String text, Date date) {
+    public Comment(int id, String text, Date date) {
         this.id = id;
         this.text = text;
         this.createdDate = date;
     }
 
-    public Comments(int id, String text, Date date, User user, Image image) {
+    public Comment(int id, String text, Date date, User user, Image image) {
         this.id = id;
         this.text = text;
         this.createdDate = date;

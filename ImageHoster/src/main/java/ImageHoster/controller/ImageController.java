@@ -3,8 +3,10 @@ package ImageHoster.controller;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
+import ImageHoster.model.Comment;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
+import ImageHoster.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +29,9 @@ public class ImageController {
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private CommentService commentService;
+
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
     public String getUserImages(Model model) {
@@ -47,10 +52,35 @@ public class ImageController {
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{imageId}/{title}")
     public String showImage(@PathVariable("imageId") int id, Model model) {
+        List<Comment> comments = new ArrayList<Comment>();
+        List<Comment> applicableComments = new ArrayList<Comment>();
         Image image = imageService.getImage(id);
+        User user = image.getUser();
+        comments = commentService.getAllComments();
+        for(int i = 0; i < comments.size(); i++){
+            if(id == comments.get(i).getImage().getId())
+            {
+                applicableComments.add(comments.get(i));
+            }
+        }
+        model.addAttribute("comments", applicableComments);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        //return "image/" + image.getId() + "/" + image.getTitle();
         return "images/image";
+    }
+
+    @RequestMapping(value = "/image/{imageId}/{imageTitle}/comments", method = RequestMethod.POST)
+    ///public String createComments(@RequestParam("imageId") int id, Model model) {
+    public String createComments(@PathVariable("imageId") int id, @RequestParam("comment") String commentDescription, HttpSession session, Model model) {
+        Image image = imageService.getImage(id);
+        User user = (User) session.getAttribute("loggeduser");
+        Comment comment = new Comment(commentDescription);
+        comment.setImage(image);
+        comment.setUser(user);
+        comment.setCreatedDateDate(new Date());
+        commentService.createComment(comment);
+        return "redirect:/images/" + image.getId() + "/" + image.getTitle();
     }
 
     //This controller method is called when the request pattern is of type 'images/upload'
@@ -168,7 +198,6 @@ public class ImageController {
             model.addAttribute("tags", image.getTags());
             String error = "Only the owner of the image can delete the image";
             model.addAttribute("deleteError", error);
-            //model.addAttribute("comments", image.getComments());
             return "images/image";
         }
     }
