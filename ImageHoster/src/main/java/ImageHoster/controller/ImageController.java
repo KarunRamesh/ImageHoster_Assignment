@@ -18,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
+import java.time.*;
 
 @Controller
 public class ImageController {
@@ -42,14 +44,15 @@ public class ImageController {
 
     //This method is called when the details of the specific image with corresponding title are to be displayed
     //The logic is to get the image from the databse with corresponding title. After getting the image from the database the details are shown
-    //First receive the dynamic parameter in the incoming request URL in a string variable 'title' and also the Model type object
-    //Call the getImageByTitle() method in the business logic to fetch all the details of that image
+    //First receive the dynamic parameters in the incoming request URL in a string variable 'title' and 'imageId' and also the Model type object
     //Add the image in the Model type object with 'image' as the key
     //Return 'images/image.html' file
 
-    //Also now you need to add the tags of an image in the Model type object
-    //Here a list of tags is added in the Model type object
-    //this list is then sent to 'images/image.html' file and the tags are displayed
+    //This controller method is called when request  pattern is of type '/images/{imageId}/{title}'.
+    //Here entire list of comments extracted from the database.
+    //After that only the comments where 'id of the image inside the comment object' matches with the 'id of the particular image selected by the user'
+    //will be put into final list for display.
+    //Model will added with 'List of related comment objects, Image, User and then Return 'images/image.html' file
     @RequestMapping("/images/{imageId}/{title}")
     public String showImage(@PathVariable("imageId") int id, Model model) {
         List<Comment> comments = new ArrayList<Comment>();
@@ -66,19 +69,26 @@ public class ImageController {
         model.addAttribute("comments", applicableComments);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
-        //return "image/" + image.getId() + "/" + image.getTitle();
         return "images/image";
     }
 
+
+    //This controller method is called when the request pattern is of type '/image/{imageId}/{imageTitle}/comments' and also the incoming request is of POST type
+    //Comment object will be constructed based on the information received via 'path variable : imageId' and 'Request parameter : comment'
+    //Set the date on which the comment is posted
+    //Set the comment object with the 'Image' details using the 'image' object extracted from the database using the 'imageId'
+    //Set the comment object with the 'User' details using the 'user' object extracted from the 'Image' object
+    //After constructing the 'comment object' it will be sent to the business logic to be persisted in the database
+    //After storing the comment, this method directs to the '/image/{imageId}/{imageTitle}' page
     @RequestMapping(value = "/image/{imageId}/{imageTitle}/comments", method = RequestMethod.POST)
-    ///public String createComments(@RequestParam("imageId") int id, Model model) {
     public String createComments(@PathVariable("imageId") int id, @RequestParam("comment") String commentDescription, HttpSession session, Model model) {
         Image image = imageService.getImage(id);
         User user = (User) session.getAttribute("loggeduser");
         Comment comment = new Comment(commentDescription);
         comment.setImage(image);
         comment.setUser(user);
-        comment.setCreatedDateDate(new Date());
+        Date input = new Date();
+        comment.setCreatedDate(input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         commentService.createComment(comment);
         return "redirect:/images/" + image.getId() + "/" + image.getTitle();
     }
@@ -118,8 +128,10 @@ public class ImageController {
     //This controller method is called when the request pattern is of type 'editImage'
     //This method fetches the image with the corresponding id from the database and adds it to the model with the key as 'image'
     //The method then returns 'images/edit.html' file wherein you fill all the updated details of the image
-
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
+    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will be allowed to edit image details by redirecting user to 'images/edit' page
+    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will not be allowed to edit image details by redirecting user to 'images/image' and an 'error message' will be shown.
+
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
     public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session) {
@@ -180,6 +192,8 @@ public class ImageController {
 
     //This controller method is called when the request pattern is of type 'deleteImage' and also the incoming request is of DELETE type
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
+    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will be allowed to delete the image and later redirect user to 'images' page
+    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will not be allowed to delete the image details by redirecting user to 'images/image' and an 'error message' will be shown.
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, Model model, HttpSession session)

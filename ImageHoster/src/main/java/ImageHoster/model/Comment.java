@@ -1,7 +1,10 @@
 package ImageHoster.model;
 
+import org.apache.tomcat.jni.Local;
+
 import javax.persistence.*;
 import java.util.Date;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +30,16 @@ public class Comment {
     @Column(columnDefinition = "text")
     private String text;
 
+    //@Column annotation specifies that the attribute will be mapped to the column in the database.
+    //Here the column name is explicitly mentioned as 'createdDate'
     @Column(name = "createdDate")
-    private Date createdDate;
+    private LocalDate createdDate;
 
     //The 'comment' table is mapped to 'users' table with Many:One mapping
     //One comment can have only one user (owner) but one user can have multiple comments
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'comment' table referring the primary key in 'users' table will be 'user'
+    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'users' table will be 'user'
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -42,7 +47,7 @@ public class Comment {
     //One comment can have only one user (owner) but one image can have multiple comments
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'comment' table referring the primary key in 'images' table will be 'Image'
+    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'images' table will be 'Image'
     @JoinColumn(name = "Image_id")
     private Image Image;
 
@@ -54,13 +59,13 @@ public class Comment {
         this.text =  description;
     }
 
-    public Comment(int id, String text, Date date) {
+    public Comment(int id, String text, LocalDate date) {
         this.id = id;
         this.text = text;
         this.createdDate = date;
     }
 
-    public Comment(int id, String text, Date date, User user, Image image) {
+    public Comment(int id, String text, LocalDate date, User user, Image image) {
         this.id = id;
         this.text = text;
         this.createdDate = date;
@@ -92,11 +97,11 @@ public class Comment {
         this.Image = image;
     }
 
-    public Date getCreatedDate() {
+    public LocalDate getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDateDate(Date date) {
+    public void setCreatedDate(LocalDate date) {
         this.createdDate = date;
     }
 

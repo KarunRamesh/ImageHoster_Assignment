@@ -69,8 +69,6 @@ public class Image {
         this.date = date;
     }
 
-
-
     public Integer getId() {
         return id;
     }

@@ -13,10 +13,14 @@ public class CommentRepository {
     @PersistenceUnit(unitName = "imageHoster")
     private EntityManagerFactory emf;
 
+    //The method receives the Comment object to be persisted in the database
+    //Creates an instance of EntityManager
+    //Starts a transaction
+    //The transaction is committed if it is successful
+    //The transaction is rolled back in case of unsuccessful transaction
     public Comment createComment(Comment comment) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction transaction = em.getTransaction();
-
         try {
             transaction.begin();
             em.persist(comment);
@@ -27,7 +31,10 @@ public class CommentRepository {
         return comment;
     }
 
-    public List<Comment> getCommentsByImageId() {
+    //The method creates an instance of EntityManager
+    //Executes JPQL query to fetch all the comments from the database
+    //Returns the list of all the comments fetched from the database
+    public List<Comment> getAllComments() {
         EntityManager em = emf.createEntityManager();
         try {
             TypedQuery<Comment> query = em.createQuery("SELECT c from Comment c" , Comment.class);
@@ -39,13 +46,4 @@ public class CommentRepository {
         }
     }
 
-    public Comment getComment(String commentText) {
-        EntityManager em = emf.createEntityManager();
-        try {
-            TypedQuery<Comment> typedQuery = em.createQuery("SELECT c from Comment c where c.text =:commentText", Comment.class).setParameter("commentText", commentText);
-            return typedQuery.getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
-    }
 }
