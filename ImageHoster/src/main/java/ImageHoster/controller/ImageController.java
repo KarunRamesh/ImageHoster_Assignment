@@ -130,7 +130,7 @@ public class ImageController {
     //The method then returns 'images/edit.html' file wherein you fill all the updated details of the image
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
     //If the 'logged in User' is trying to 'edit' the image which is created by him, he will be allowed to edit image details by redirecting user to 'images/edit' page
-    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will not be allowed to edit image details by redirecting user to 'images/image' and an 'error message' will be shown.
+    //If the 'logged in User' is trying to 'edit' the image which is created by other user, he will not be allowed to edit image details by redirecting user to 'images/image' and an 'error message' will be shown.
 
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
@@ -192,8 +192,8 @@ public class ImageController {
 
     //This controller method is called when the request pattern is of type 'deleteImage' and also the incoming request is of DELETE type
     //The method calls the deleteImage() method in the business logic passing the id of the image to be deleted
-    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will be allowed to delete the image and later redirect user to 'images' page
-    //If the 'logged in User' is trying to 'edit' the image which is created by him, he will not be allowed to delete the image details by redirecting user to 'images/image' and an 'error message' will be shown.
+    //If the 'logged in User' is trying to 'delete' the image which is created by him, he will be allowed to delete the image and later redirect user to 'images' page
+    //If the 'logged in User' is trying to 'delete' the image which is created by him, he will not be allowed to delete the image details by redirecting user to 'images/image' and an 'error message' will be shown.
     //Looks for a controller method with request mapping of type '/images'
     @RequestMapping(value = "/deleteImage", method = RequestMethod.DELETE)
     public String deleteImageSubmit(@RequestParam(name = "imageId") Integer imageId, Model model, HttpSession session)
@@ -209,6 +209,7 @@ public class ImageController {
         else
         {
             model.addAttribute("image", image);
+            model.addAttribute("user", ownerOfTheImage);
             model.addAttribute("tags", image.getTags());
             String error = "Only the owner of the image can delete the image";
             model.addAttribute("deleteError", error);

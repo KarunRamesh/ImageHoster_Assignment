@@ -36,20 +36,20 @@ public class Comment {
     private LocalDate createdDate;
 
     //The 'comment' table is mapped to 'users' table with Many:One mapping
-    //One comment can have only one user (owner) but one user can have multiple comments
+    //One comment can have only one user (owner) but one user can post multiple comments
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'users' table will be 'user'
+    //Below annotation indicates that the name of the column in 'images' table referring the primary key in 'users' table will be 'user_id'
     @JoinColumn(name = "user_id")
     private User user;
 
     //The 'comment' table is mapped to 'images' table with Many:One mapping
-    //One comment can have only one user (owner) but one image can have multiple comments
+    //One comment can only belong to only one image but one image can have multiple comments
     //FetchType is EAGER
     @ManyToOne(fetch = FetchType.EAGER)
-    //Below annotation indicates that the name of the column in 'comments' table referring the primary key in 'images' table will be 'Image'
-    @JoinColumn(name = "Image_id")
-    private Image Image;
+    //Below annotation indicates that the name of the column in 'images' table referring the primary key in 'users' table will be 'user_id'
+    @JoinColumn(name = "image_id")
+    private Image image;
 
     public Comment() {
     }
@@ -70,7 +70,7 @@ public class Comment {
         this.text = text;
         this.createdDate = date;
         this.user = user;
-        this.Image = image;
+        this.image = image;
     }
 
     public Integer getId() {
@@ -90,11 +90,11 @@ public class Comment {
     }
 
     public Image getImage() {
-        return Image;
+        return image;
     }
 
     public void setImage(Image image) {
-        this.Image = image;
+        this.image = image;
     }
 
     public LocalDate getCreatedDate() {
